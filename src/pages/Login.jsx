@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../config";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -9,6 +8,7 @@ function Login() {
     password: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,16 +17,31 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.post(
-        "${API_URL}/api/auth/login",
-        formData,
-      );
+      console.log("Attempting login with:", formData.email);
+
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email: formData.email.toLowerCase(),
+        password: formData.password,
+      });
+
+      console.log("Login response:", res.data);
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      window.location.href = "/";
+
+      alert("✅ Login successful!");
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed");
+      console.error("Login error:", err);
+      const errorMsg =
+        err.response?.data?.error || err.message || "Login failed";
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +54,7 @@ function Login() {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email address"
             value={formData.email}
             onChange={handleChange}
             required
@@ -52,8 +67,8 @@ function Login() {
             onChange={handleChange}
             required
           />
-          <button type="submit" className="btn-primary">
-            Login
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
         <p>

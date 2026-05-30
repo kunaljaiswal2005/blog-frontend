@@ -1,37 +1,52 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PostCard from "../components/PostCard";
-import { API_URL } from "../config";
 
 function Home() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get("${API_URL}/api/posts");
-        setPosts(res.data);
+        const res = await axios.get("http://localhost:5000/api/posts");
+        setPosts(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       } catch (err) {
         console.error(err);
+        setError(err.message);
+        setPosts([]);
         setLoading(false);
       }
     };
     fetchPosts();
   }, []);
 
-  if (loading) return <div className="loading">Loading posts...</div>;
+  if (loading) return <div className="loading">✨ Loading stories...</div>;
+  if (error) return <div className="loading">❌ Error: {error}</div>;
 
   return (
-    <div className="home-page">
-      <h1>Latest Blog Posts</h1>
-      <div className="posts-grid">
-        {posts.length === 0 ? (
-          <p>No posts yet. Be the first to write one! ✍️</p>
-        ) : (
-          posts.map((post) => <PostCard key={post._id} post={post} />)
-        )}
+    <div className="container">
+      <div className="home-page">
+        <h1>Discover Stories</h1>
+        <p>Explore inspiring articles and creative thoughts</p>
+        <div className="posts-grid">
+          {posts.length === 0 ? (
+            <p
+              style={{
+                gridColumn: "1 / -1",
+                textAlign: "center",
+                padding: "3rem",
+                color: "#999",
+              }}
+            >
+              📝 No stories yet. Be the first to write one!
+            </p>
+          ) : (
+            posts.map((post) => <PostCard key={post._id} post={post} />)
+          )}
+        </div>
       </div>
     </div>
   );

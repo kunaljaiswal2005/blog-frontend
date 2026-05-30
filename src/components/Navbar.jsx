@@ -5,11 +5,38 @@ function Navbar() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    // Load user from localStorage on mount
     const userData = localStorage.getItem("user");
-    if (token && userData) {
-      setUser(JSON.parse(userData));
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (err) {
+        console.error("Error parsing user data:", err);
+      }
     }
+
+    // Listen for storage changes (when login happens)
+    const handleStorageChange = () => {
+      const updatedUserData = localStorage.getItem("user");
+      if (updatedUserData) {
+        try {
+          setUser(JSON.parse(updatedUserData));
+        } catch (err) {
+          console.error("Error parsing user data:", err);
+        }
+      }
+    };
+
+    // Listen for changes in same window
+    window.addEventListener("focus", handleStorageChange);
+
+    // Also listen for storage events from other tabs
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("focus", handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -23,14 +50,14 @@ function Navbar() {
     <nav className="navbar">
       <div className="nav-container">
         <Link to="/" className="logo">
-          📝 MyBlog
+          ✨ ByteVibe
         </Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
           {user ? (
             <>
               <Link to="/create">✍️ Write</Link>
-              <span>Hi, {user.username}!</span>
+              <span>👤 {user.username}</span>
               <button onClick={handleLogout} className="btn-logout">
                 Logout
               </button>
@@ -38,7 +65,7 @@ function Navbar() {
           ) : (
             <>
               <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
+              <Link to="/register">Sign Up</Link>
             </>
           )}
         </div>

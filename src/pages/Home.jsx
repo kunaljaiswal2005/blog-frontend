@@ -7,14 +7,19 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // 🔴 यह line add करो सबसे पहले!
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://blog-backend-f56m.onrender.com";
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/posts");
+        // 🔴 यहाँ API_URL use करो!
+        const res = await axios.get(`${API_URL}/api/posts`);
         setPosts(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch Error:", err);
         setError(err.message);
         setPosts([]);
         setLoading(false);

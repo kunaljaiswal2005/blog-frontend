@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../config";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -9,31 +8,25 @@ function Register() {
     email: "",
     password: "",
   });
-
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Handle input changes
+  // 🔴 यह line add करो!
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://blog-backend-f56m.onrender.com";
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
+      // 🔴 यहाँ API_URL use करो!
       const res = await axios.post(`${API_URL}/api/auth/register`, formData);
-
       alert(res.data.message);
-
       navigate("/login");
     } catch (err) {
-      console.error(err);
-
       setError(err.response?.data?.error || "Registration failed");
     }
   };
@@ -42,9 +35,7 @@ function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <h2>Create Account</h2>
-
         {error && <div className="error">{error}</div>}
-
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -54,7 +45,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-
           <input
             type="email"
             name="email"
@@ -63,7 +53,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-
           <input
             type="password"
             name="password"
@@ -72,12 +61,10 @@ function Register() {
             onChange={handleChange}
             required
           />
-
           <button type="submit" className="btn-primary">
             Register
           </button>
         </form>
-
         <p>
           Already have an account? <a href="/login">Login here</a>
         </p>

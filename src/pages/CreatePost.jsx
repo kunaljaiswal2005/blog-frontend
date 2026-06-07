@@ -1,71 +1,54 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_URL } from "../config";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function CreatePost() {
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    tags: "",
+    title: '',
+    content: '',
+    tags: ''
   });
-
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Handle input changes
+  // 🔴 यह line add करो!
+  const API_URL = import.meta.env.VITE_API_URL || 'https://blog-backend-f56m.onrender.com';
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem("token");
-
-    // Check login
+    const token = localStorage.getItem('token');
     if (!token) {
-      alert("Please login first!");
-      navigate("/login");
+      alert('Please login first!');
+      navigate('/login');
       return;
     }
 
     try {
-      // Convert tags string into array
       const postData = {
         ...formData,
-        tags: formData.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag !== ""),
+        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
       };
-
-      // API request
+      
+      // 🔴 यहाँ API_URL use करो!
       await axios.post(`${API_URL}/api/posts`, postData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      alert("✅ Post created successfully!");
-      navigate("/");
+      
+      alert('✅ Post created successfully!');
+      navigate('/');
     } catch (err) {
-      console.error(err);
-
-      setError(err.response?.data?.error || "Failed to create post");
+      setError(err.response?.data?.error || 'Failed to create post');
     }
   };
 
   return (
     <div className="create-post-page">
       <h2>Write a New Post</h2>
-
       {error && <div className="error">{error}</div>}
-
       <form onSubmit={handleSubmit} className="post-form">
         <input
           type="text"
@@ -75,7 +58,6 @@ function CreatePost() {
           onChange={handleChange}
           required
         />
-
         <textarea
           name="content"
           placeholder="Write your post content here..."
@@ -84,18 +66,14 @@ function CreatePost() {
           rows="15"
           required
         />
-
         <input
           type="text"
           name="tags"
-          placeholder="Tags (comma separated)"
+          placeholder="Tags (comma separated, e.g: tech, coding, tutorial)"
           value={formData.tags}
           onChange={handleChange}
         />
-
-        <button type="submit" className="btn-primary">
-          Publish Post
-        </button>
+        <button type="submit" className="btn-primary">Publish Post</button>
       </form>
     </div>
   );

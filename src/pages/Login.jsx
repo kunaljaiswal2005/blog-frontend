@@ -11,6 +11,10 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 🔴 यह line add करो!
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://blog-backend-f56m.onrender.com";
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -21,20 +25,17 @@ function Login() {
     setError("");
 
     try {
-      console.log("Attempting login with:", formData.email);
-
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      // 🔴 यहाँ API_URL use करो!
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
         email: formData.email.toLowerCase(),
         password: formData.password,
       });
-
-      console.log("Login response:", res.data);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("✅ Login successful!");
-      navigate("/");
+      window.location.href = "/";
     } catch (err) {
       console.error("Login error:", err);
       const errorMsg =

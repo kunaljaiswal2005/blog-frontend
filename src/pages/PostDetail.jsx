@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import axios from "axios";
-import { API_URL } from "../config";
 
 function PostDetail() {
   const { slug } = useParams();
@@ -11,9 +10,14 @@ function PostDetail() {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // 🔴 यह line add करो!
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://blog-backend-f56m.onrender.com";
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
+        // 🔴 यहाँ API_URL use करो!
         const res = await axios.get(`${API_URL}/api/posts/${slug}`);
         setPost(res.data);
         fetchComments(res.data._id);
@@ -28,10 +32,11 @@ function PostDetail() {
 
   const fetchComments = async (postId) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/comments/${postId}`,
-      );
-      setComments(res.data);
+      // 🔴 यहाँ API_URL use करो!
+      const res = await axios.get(`${API_URL}/api/comments/${postId}`);
+      if (Array.isArray(res.data)) {
+        setComments(res.data);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -46,8 +51,9 @@ function PostDetail() {
     }
 
     try {
+      // 🔴 यहाँ API_URL use करो!
       await axios.post(
-        `http://localhost:5000/api/comments/${post._id}`,
+        `${API_URL}/api/comments/${post._id}`,
         { content: newComment },
         { headers: { Authorization: `Bearer ${token}` } },
       );
